@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/auth": [ // @app/auth 로 임포트하면 apps/auth/src 디렉토리를 가리킴
+        "apps/auth/src"
+      ],
+      "@app/auth/*": [ // @app/auth/XXX 로 임포트하면 apps/auth/src/XXX 파일을 가리킴
+        "apps/auth/src/*"
+      ],
+      // Event 앱에 대한 별칭 추가 (나중에 필요할 때를 위해 미리 추가)
+      "@app/event": [
+        "apps/event/src"
+      ],
+      "@app/event/*": [
+        "apps/event/src/*"
+      ],
+    }
+  }
+}

@@ -1,0 +1,89 @@
+services:
+  # Gateway 앱 서비스 정의 (제공해주신 코드)
+  event-app:
+      build:
+        context: .
+        dockerfile: ./apps/event-app/Dockerfile
+        target: development # 개발 모드 빌드 사용
+      # NestJS CLI 모노레포 앱 시작 명령어
+      command: npm run start:dev event-app
+      # event-app의 환경 변수 파일 사용
+      env_file:
+        - ./.env.development
+      # MongoDB 서비스에 의존
+      depends_on:
+        - mongo
+      # 개발 중 코드 변경 감지를 위한 볼륨 마운트
+      volumes:
+        - .:/usr/src/app
+        - /usr/src/app/node_modules # 호스트 node_modules가 컨테이너를 덮어쓰지 않도록 설정
+      # 외부에서 Gateway에 접근하기 위한 포트 포워딩
+      ports:
+        - '3000:3000'
+
+  # Auth 앱 서비스 정의 (새로 추가)
+  auth:
+      build:
+        context: . # Dockerfile이 루트 기준임을 명시
+        dockerfile: ./apps/auth/Dockerfile # Auth 앱의 Dockerfile 경로
+        target: development # 개발 모드 빌드 사용
+      # NestJS CLI 모노레포 앱 시작 명령어
+      command: npm run start:dev auth
+      # Auth 앱의 환경 변수 파일 사용
+      env_file:
+        # Auth 앱에 고유한 설정(.env)이 있다면 사용
+        - ./.env.development
+        # 공통 환경 변수(.env)를 사용한다면 해당 경로 추가
+        # - ./.env.common # 예시: 루트에 공통 .env 파일이 있다면
+
+      environment:
+        # 데이터베이스 연결 정보 설정 (단일 mongo 서비스 사용)
+        # user: root, password: 1234 (mongo 서비스 env 설정 값)
+        # host: mongo (mongo 서비스 이름)
+        # database: event (과제에서 사용할 DB 이름)
+        # authSource=admin (root 사용자는 admin DB에서 인증)
+        MONGODB_URI: mongodb://root:1234@mongo:27017/event?authSource=admin
+        # 이 MONGODB_URI 환경 변수를 NestJS Auth 앱의 DB 연결 코드에서 읽어야 합니다.
+
+        # Auth 마이크로서비스가 컨테이너 내부에서 리스닝할 포트
+        # Gateway 앱의 TCP 클라이언트 설정에서 이 포트를 사용해야 합니다.
+        PORT: 3001 # 예시: Auth 서비스는 3001 포트로 리스닝
+
+        # JWT Secret 키 (Gateway, Auth, Event 모두 동일해야 함)
+        # .env_file에 있다면 생략 가능, 없거나 명시하고 싶다면 추가
+        # JWT_SECRET: yourStrongJWTSecret # .env 파일에 있다면 여기에 추가 불필요
+
+      # MongoDB 서비스에 의존 (DB 연결 전에 MongoDB가 시작되도록)
+      depends_on:
+        - mongo
+      # Gateway 앱과 마찬가지로 개발 중 코드 변경 감지를 위한 볼륨 마운트
+      volumes:
+        - .:/usr/src/app
+        - /usr/src/app/node_modules
+
+      # Auth 마이크로서비스가 리스닝하는 내부 포트 노출
+      # Gateway 앱이 이 포트로 접근합니다.
+      expose:
+        - '3001'
+      # 개발/디버깅 목적으로 호스트에서도 접근하려면 ports를 추가
+      # ports:
+      #   - '3001:3001'
+
+
+  # MongoDB 단일 서비스 정의 (제공해주신 코드)
+  mongo:
+    image: mongo:latest # 최신 MongoDB 이미지 사용
+    container_name: event_back_mongo_db # 컨테이너 이름 지정
+    ports:
+      - "27017:27017" # 호스트와 컨테이너의 27017 포트 연결
+    volumes:
+      - mongo_data:/data/db # 데이터 영속성을 위한 볼륨 마운트
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # 초기 root 사용자 이름
+      MONGO_INITDB_ROOT_PASSWORD: 1234 # 초기 root 사용자 비밀번호 (!!! event-app/auth 앱 MONGODB_URI와 일치해야 함 !!!)
+      MONGO_INITDB_DATABASE: admin # root 사용자가 생성될 초기 DB (인증 소스로 사용)
+
+# Docker Volume 정의 (MongoDB 데이터 저장용)
+volumes:
+  mongo_data:
+    driver: local # 로컬 스토리지 드라이버 사용
