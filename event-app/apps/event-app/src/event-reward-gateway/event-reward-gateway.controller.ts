@@ -283,7 +283,6 @@ export class EventRewardGatewayController {
   @Get('reward-logs')
   @ApiOperation({ summary: '전체 사용자 보상 수령 이력 조회' })
   @ApiBearerAuth('access-token')
-  @ApiResponse(createSuccessResponse(getLogDto))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN, Role.AUDITOR)
   async getAllRewardClaimLogs(
