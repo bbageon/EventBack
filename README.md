@@ -2,10 +2,13 @@
 2025 N_M_Assignment 01
 
 Local Environment 에서 진행하였으며, 코드 실행 시, 참고를 위한 env, dockerfile, docker-compose.yml 모두 업로드하였음
+
 -> Production 단계에서는 삭제
+
 **실행방법**
-docker compose up --build
-이때, .env.development 파일 mongoDB URL 및 INITDB 값 확인
+1. npm i
+2. docker compose up --build
+3. 이때, .env.development 파일 mongoDB URL 및 INITDB 값 확인
 
 **Swagger 접속**
 
