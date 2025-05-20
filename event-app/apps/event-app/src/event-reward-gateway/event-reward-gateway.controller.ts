@@ -62,7 +62,7 @@ export class EventRewardGatewayController {
   @ApiBody({ type: DailyCheckinRequestDto })
   @ApiResponse(createSuccessResponse(DailyCheckinResponseDto))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @Post('DailyCheckIn')
   async Dailycheckin(@Req() req: Request, @Body() body: DailyCheckinRequestDto, @Res() res: Response): Promise<void> {
     try {
@@ -109,7 +109,7 @@ export class EventRewardGatewayController {
   @ApiResponse(createSuccessResponse(WeeklyCheckInResponseDto))
   @ApiResponse(createErrorResponse('Error message'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @Post('WeeklyCheckIn')
   async WeeklyCheckIn(@Req() req: Request, @Body() body: any, @Res() res: Response): Promise<void> {
     try {
@@ -159,7 +159,7 @@ export class EventRewardGatewayController {
   @ApiResponse(createSuccessResponse(UserEventProgressResponseDto))
   @ApiResponse(createErrorResponse('Error message'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @Get('eventInfo')
   async getUserEventProgress(@Req() req: Request, @Query() query: any, @Res() res: Response): Promise<void> {
     try {
@@ -211,7 +211,7 @@ export class EventRewardGatewayController {
   @ApiBody({ type: [DailyRewardInfoDto], description: '설정할 전체 일일 보상 목록' })
   @ApiResponse(createErrorResponse('Error message'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.ADMIN, Role.OPERATOR)
+  @Roles(Role.ADMIN, Role.OPERATOR)
   async setDailyRewards(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: DailyRewardInfoDto, optional: false }))
@@ -250,7 +250,7 @@ export class EventRewardGatewayController {
   @ApiBody({ type: [SlotRewardInfoDto], description: '설정할 전체 슬롯 보상 목록' })
   @ApiResponse(createErrorResponse('Error message'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.ADMIN, Role.OPERATOR)
+  @Roles(Role.ADMIN, Role.OPERATOR)
   async setSlotRewards(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: SlotRewardInfoDto, optional: false }))
@@ -280,12 +280,12 @@ export class EventRewardGatewayController {
    * @param queryDto 
    * @param res 
    */
-  @Get('admin/reward-logs')
-  @ApiOperation({ summary: '[관리자] 전체 사용자 보상 수령 이력 조회' })
+  @Get('reward-logs')
+  @ApiOperation({ summary: '전체 사용자 보상 수령 이력 조회' })
   @ApiBearerAuth('access-token')
   @ApiResponse(createSuccessResponse(getLogDto))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.ADMIN, Role.OPERATOR)
+  @Roles(Role.ADMIN, Role.AUDITOR)
   async getAllRewardClaimLogs(
     @Query(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: false })) 
     queryDto: getLogDto, // 단순화된 DTO 사용

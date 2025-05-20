@@ -19,7 +19,7 @@ import { Request, Response } from 'express';
 import { EventGatewayService } from './event-gateway.service';
 
 import { AuthGuard } from '@nestjs/passport';
-import { createErrorResponse, createSuccessResponse, LoggerManager, RolesGuard } from '@app/common';
+import { createErrorResponse, RolesGuard } from '@app/common';
 import { Roles } from '@app/common';
 import { Role } from '@app/common';
 
@@ -29,16 +29,6 @@ import { ApiOperation, ApiTags, ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiR
 import {
   CreateEventDto,
   UpdateEventDto,
-  EventResponseDto,
-  RewardOptionDto,
-  DailyRewardInfoDto,
-  SlotRewardInfoDto,
-  DailyCheckinRequestDto,
-  DailyCheckinResponseDto,
-  WeeklyCheckInRequestDto,
-  WeeklyCheckInResponseDto,
-  GetUserEventProgressRequestDto,
-  UserEventProgressResponseDto
 } from '@app/common/dto';
 
 
@@ -60,7 +50,7 @@ export class EventGatewayController {
   @ApiBody({ type: CreateEventDto })
   @ApiResponse(createErrorResponse('Error message'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.OPERATOR, Role.ADMIN)
+  @Roles(Role.OPERATOR, Role.ADMIN)
   @Post('create')
   async createEvent(@Body() createEventDto: CreateEventDto, @Req() req: Request, @Res() res: Response): Promise<void> {
     try {
@@ -95,7 +85,7 @@ export class EventGatewayController {
   @ApiResponse(createErrorResponse('Error message'))
   @Get('findAll')
   @UseGuards(AuthGuard('jwt'), RolesGuard) // 필요하다면 인증/권한 가드 적용
-  // @Roles(Role.OPERATOR, Role.ADMIN)
+  @Roles(Role.OPERATOR, Role.ADMIN)
   async findEvents(@Res() res: Response): Promise<void> {
     try {
       const result = await this.eventGatewayService.findAllEvents();
@@ -128,7 +118,7 @@ export class EventGatewayController {
   @ApiResponse(createErrorResponse('Error message'))
   @ApiParam({ name: 'id', description: '조회할 이벤트 ID', example : 1 })
   @UseGuards(AuthGuard('jwt'), RolesGuard) // 필요하다면 인증/권한 가드 적용
-  // @Roles(Role.OPERATOR, Role.ADMIN)
+  @Roles(Role.OPERATOR, Role.ADMIN)
   @Get('find/:id')
   async findEventById(@Param('id') id: number, @Res() res: Response): Promise<void> {
     try {
@@ -170,7 +160,7 @@ export class EventGatewayController {
   @ApiParam({ name: 'id', description: '수정할 이벤트 ID', example : 1 })
   @ApiBody({ type: UpdateEventDto })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.OPERATOR, Role.ADMIN)
+  @Roles(Role.OPERATOR, Role.ADMIN)
   @Post('update/:id')
   async updateEvent(@Param('id',ParseIntPipe) id : number, @Body() updateEventDto: UpdateEventDto, @Res() res: Response): Promise<void> {
     try {
@@ -209,7 +199,7 @@ export class EventGatewayController {
   @ApiBearerAuth('access-token')
   @ApiParam({ name: 'id', description: '삭제할 이벤트 eventId', example : '1' })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.ADMIN, Role.OPERATOR)
+  @Roles(Role.ADMIN, Role.OPERATOR)
   @Post('delete/:id')
   async deleteEvent(@Param('id') id: number, @Res() res: Response): Promise<void> {
     try {

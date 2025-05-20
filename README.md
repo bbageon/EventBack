@@ -1,6 +1,8 @@
 # 여름맞이 물총 이벤트
 2025 N_M_Assignment 01
-Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
+
+Local Environment 에서 진행하였으며, 코드 실행 시, 참고를 위한 env, dockerfile, docker-compose.yml 모두 업로드하였음
+-> Production 단계에서는 삭제
 ## 1. 프로젝트 개요
 ![image](https://github.com/user-attachments/assets/7f3315c3-5c7d-4983-bfd0-2fa81e91e973)
 
@@ -69,7 +71,7 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
 * 모든 보상 지급(성공/실패) 내역을 `RewardClaimLog`에 기록하여 추적 및 감사 기능을 제공합니다.
 * 관리자는 전체 또는 특정 사용자의 이력을 필터링하여 조회할 수 있습니다.
 
-## 5. 설계 결정 및 주요 로직 설명
+## 5. 주요 로직 설명
 
 ### 5.1. 이벤트 조건 (`Event.conditions` 및 `EventConditionType`)
 
@@ -77,13 +79,13 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
 
 ### 5.2. 보상 시스템
 
-* **일일 고정 보상 (`dailyRewardsPool`):** `DailyCheckIn` 성공 (및 일일 조건 만족) 시, 달성한 연속 출석 N일차에 해당하는 고정 보상을 지급합니다.
-* **주간 슬롯 확률 보상 (`slotRewards`):** `WeeklyCheckIn` 시, 현재 달성한 게이지 레벨(연속 출석일수)에 해당하는 슬롯의 보상 목록(`RewardOption[]`) 중 하나를 확률적으로 지급합니다.
-    * 각 슬롯별 보상 또는 주간 전체 게이지 보상에 대한 획득 횟수 제한은 `UserSummerEventProgress`의 `Check_Slots` 또는 `WeeklyRewardIs` 필드를 통해 관리됩니다.
+* **일일 고정 보상 (`DailyRewardInfo`):** `DailyCheckIn` 성공 (및 `Condition`)만족 시, 달성한 연속 출석 N일차에 해당하는 고정 보상을 지급
+* **주간 슬롯 확률 보상 (`SlotRewardInfo`):** `WeeklyCheckIn` 시, 현재 달성한 게이지 레벨(연속 출석일수)에 해당하는 슬롯의 보상 목록(`RewardOption[]`) 중 하나를 확률(`RewardOption.probability`)적으로 지급
+    * 각 슬롯별 보상 또는 주간 전체 게이지 보상에 대한 획득 횟수 제한은 `UserSummerEventProgress`의 `Check_Slots` 또는 `WeeklyRewardIs` 필드를 통해 관리
 
 ### 5.3. 주간 초기화 로직 (`getStartOfWeekByThursday`)
 
-* 사용자의 연속 출석일수(`currentStreak`) 및 수령한 슬롯(`Check_Slots`), 주간 보상 수령 여부(`WeeklyRewardIs`)는 매주 특정 요일(예: 목요일) 자정을 기준으로 초기화됩니다.
+* 사용자의 연속 출석일수(`currentStreak`) 및 수령한 슬롯(`Check_Slots`), 주간 보상 수령 여부(`WeeklyRewardIs`)는 매주 목요일 자정을 기준으로 초기화됩니다.
 * `getStartOfWeekByThursday` 헬퍼 메소드가 이 기준 시점을 계산하며, `DailyCheckIn` 시점에 이전 주 데이터일 경우 초기화를 수행합니다.
 
 ## 6. API 구조 (게이트웨이 중심) 
@@ -116,7 +118,7 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
 
 ### 6.3. DTO 및 유효성 검사
 
-모든 요청 본문(body)과 쿼리 파라미터는 DTO 클래스로 정의되며, `class-validator`와 NestJS의 `ValidationPipe`를 통해 유효성이 검사됩니다. Swagger 문서를 통해 API 명세가 제공됩니다.
+모든 요청 본문(body)과 쿼리 파라미터는 DTO 클래스로 정의되며, `class-validator`와 NestJS의 `ValidationPipe`를 통해 유효성이 검사됩니다. Swagger 문서를 통해 API 명세가 제공
 
 ## 7. 구현 중 고려사항 및 해결된 문제
 
@@ -127,7 +129,7 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
     * `CastError` (예: `Cast to ObjectId failed for value "1"`): 스키마에서 수동 생성 시, `ObjectId`를 기대하는 필드에 `ObjectId`로 변환 불가능한 문자열(예: `"1"`)을 전달했을 때 발생. ID 타입을 프로젝트 전체적으로 일관되게 관리하고, 입력값에 대한 유효성 검사 및 타입 변환을 철저히 하여 해결.
       
 * **NestJS 의존성 주입:**
-* `LoggerManager` 인터셉트 문제 : 본 프로젝트는 마이크로서비스 및 모듈에서 사용하는 Logger 를 공용 라이브러리에 위치시킴. 이때, Logger 의 사용 여부를 .env 에서 `INFO_LOG(boolean)` 을 확인하여 결정함. jwtstrategy : `vaildate` return 문에서 this.logger ~ 를 통한 로거 출력을 작성하였으나, `INFO_LOG(boolean) = false` 로 설정되어 `vaildate` 함수가 false 를 리턴하고 `payload` 객체가 계속해서 null 이 출력되었음.
+    * `LoggerManager` 인터셉트 문제 : 본 프로젝트는 마이크로서비스 및 모듈에서 사용하는 Logger 를 공용 라이브러리에 위치시킴. 이때, Logger 의 사용 여부를 .env 에서 `INFO_LOG(boolean)` 을 확인하여 결정함. jwtstrategy : `vaildate` return 문에서 this.logger ~ 를 통한 로거 출력을 작성하였으나, `INFO_LOG(boolean) = false` 로 설정되어 `vaildate` 함수가 false 를 리턴하고 `payload` 객체가 계속해서 null 이 출력되었음.
     * **해결:** 이는 `INFO_LOG(boolean) = true` 를 통해 해결하였음
 
 ## 8. 향후 개선 방향
@@ -135,6 +137,9 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
     * `RewardService` 내 `checkEventConditionMet` 메소드는 특정 사용자가 주어진 조건을 만족했는지 검사
     * **현재 상태 및 향후 확장 방향:** 이 조건 로직 검증은 현재 실제 검증 로직 없이 존재 -> 모든 조건에 대하여 `true` 반환
     * 실제 구현 시, 사용자 활동 로그를 추적/제공하는 별도의 서비스와 연동하여 각 조건 유형에 맞는 검증 로직을 구체화 필요
+* 코드 가독성, 단위 테스트 및 통합 테스트 추가
+    * 기존에는 사전에 제공된 요구사항에 맞게 Gateway-[Auth, Event] 로 구분하였으나, Reward 관련해서 코드 길이가 다소 길어져 Event-Reward 로 하위 모듈로 구분할 필요가 있었음. 하지만 Reward 보상 지급에서 `Condition`, `날짜 초기화`, `보상 수령 중복 검사` 를 추가했을 때, 코드의 가독성이 다소 떨어지는 것을 확인
+    * **예정 작업 :** 단위 테스트 및 통합 테스트를 통해 결합도와 응집도를 점검하고, 기능을 함수 단위로 분리하여 유지보수성과 재사용성이 높은 코드로 개선할 예정
 
 ---
 
@@ -143,7 +148,6 @@ Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
 docker compose build
 ### Execute
 docker compose up --build
-docker compose up
 ## Install
 ### Docker
 https://docs.docker.com/desktop/setup/install/mac-install/
@@ -170,10 +174,12 @@ use event
 db.getCollectionNames().forEach(function(collName) {db[collName].deleteMany({});});
 
 ## ISSUE 
+
 ### Docker 실행 오류
 initializing backend: retrieving system info: retrieving system version: exec: "sw_vers": executable file not found in $PATH
 initializing app: getting system info: retrieving system version: exec: "sw_vers": executable file not found in $PATH
 ### 해결방법
+-터미널 접속 후
 open /Applications/Docker.app/
 
 ### Dockerfile 빌드 시, node_modules 권한 문제

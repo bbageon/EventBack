@@ -47,7 +47,7 @@ export class UserSignUpDto {
 export class AdminSignUpDto {
   @ApiProperty({
     description: '유저 고유 ID (숫자, 필수)',
-    example: 1, // 예시로 숫자 1 사용
+    example: 2, // user : 1 admin 2
     type: Number,
   })
   @IsNumber({}, { message: 'ID는 숫자여야 합니다.' })

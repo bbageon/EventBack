@@ -4,12 +4,9 @@ import {
     Controller,
     Post,
     HttpStatus,
-    Logger, // Logger 사용
-    Get,
     Req,
     Res,
     UseGuards,
-    HttpCode,
     ValidationPipe,
     UsePipes,
 } from '@nestjs/common';
@@ -20,15 +17,13 @@ import { AuthGatewayService } from './auth-gateway.service';
 
 // Passport, Guard
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '@app/common';
+import { createErrorResponse, RolesGuard } from '@app/common';
 import { Roles } from '@app/common';
 import { Role } from '@app/common';
 
 // Swagger, Dto
-import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { UserSignInDto, UserSignUpDto, AdminSignInDto, AdminSignUpDto } from '@app/common/dto';
-import { UserDto } from '@app/common/dto';
-import { SignInResult } from '@app/common/dto';
 
 
 
@@ -45,8 +40,11 @@ export class AuthGatewayController {
      * @returns 
      */
     @ApiOperation({ summary: '회원가입' })
-    @ApiBody({ type: UserSignUpDto }) // Swagger 요청 본문 정의
+    @ApiBody({ type: UserSignUpDto })
+    @ApiResponse(createErrorResponse('Error message'))
     @Post('/user_signup')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.USER, Role.ADMIN)
     @UsePipes(ValidationPipe)
     async signUp(@Body() signUpDto: UserSignUpDto, @Res() res: Response) {
         try {
@@ -70,26 +68,29 @@ export class AuthGatewayController {
      * @param signUpDto 
      * @returns 
      */
-        @ApiOperation({ summary: '관리자 회원가입' })
-        @ApiBody({ type: AdminSignUpDto }) // Swagger 요청 본문 정의
-        @Post('/admin_signup')
-        @UsePipes(ValidationPipe)
-        async AdminSignUp(@Body() signUpDto: AdminSignUpDto, @Res() res: Response) {
-            try {
-                const result = await this.authGatewayService.signUpUser(signUpDto);
-                return res.status(HttpStatus.OK).json({
-                    status: HttpStatus.OK,
-                    message: 'success',
-                    result,
-                });
-            } catch (e) {
-                return res.status(HttpStatus.OK).json({
-                    status: HttpStatus.INTERNAL_SERVER_ERROR,
-                    message: '[AUTH][CONTROLLER] An error occurred while finding events',
-                    data: (e as any).message,
-                });
-            }
+    @ApiOperation({ summary: '관리자 회원가입' })
+    @ApiBody({ type: AdminSignUpDto })
+    @ApiResponse(createErrorResponse('Error message'))
+    @Post('/admin_signup')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.ADMIN)
+    @UsePipes(ValidationPipe)
+    async AdminSignUp(@Body() signUpDto: AdminSignUpDto, @Res() res: Response) {
+        try {
+            const result = await this.authGatewayService.signUpUser(signUpDto);
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.OK,
+                message: 'success',
+                result,
+            });
+        } catch (e) {
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: '[AUTH][CONTROLLER] An error occurred while finding events',
+                data: (e as any).message,
+            });
         }
+    }
 
 
     /**
@@ -99,6 +100,9 @@ export class AuthGatewayController {
     @ApiOperation({ summary: '로그인' })
     @ApiBody({ type: UserSignInDto })
     @Post('/user_signin')
+    @ApiResponse(createErrorResponse('Error message'))
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.USER, Role.ADMIN)
     async UserSignIn(@Body() UserSignInDto: UserSignInDto, @Res() res: Response) {
         try {
             const result = await this.authGatewayService.signIn(UserSignInDto);
@@ -124,6 +128,9 @@ export class AuthGatewayController {
     @ApiOperation({ summary: '관리자 로그인' })
     @ApiBody({ type: AdminSignInDto })
     @Post('/admin_signin')
+    @ApiResponse(createErrorResponse('Error message'))
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.ADMIN)
     async AdminSignIn(@Body() AdminSignInDto: AdminSignInDto, @Res() res: Response) {
         try {
             const result = await this.authGatewayService.signIn(AdminSignInDto);

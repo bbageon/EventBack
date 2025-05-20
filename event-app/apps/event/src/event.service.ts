@@ -1,12 +1,10 @@
-// apps/event/src/event/event.service.ts
-
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, Schema } from 'mongoose';
+import { Model } from 'mongoose';
 
 // schema
 import {
@@ -22,8 +20,6 @@ import {
 // dto
 import { UpdateEventDto, CreateEventDto } from '@app/common';
 
-// TODO: 날짜/시간 처리 라이브러리 또는 내장 Date 사용
-// import { isSameDay, isBefore } from 'date-fns';
 
 @Injectable()
 export class EventService {
@@ -46,14 +42,14 @@ export class EventService {
       const event = await this.eventModel.findById(id).exec();
       console.log(event)
       if (!event) {
-        throw new NotFoundException(`ID '${id}'에 해당하는 이벤트를 찾을 수 없습니다.`);
+        throw new NotFoundException(`[EVENT][SERVICE] ID '${id}'에 해당하는 이벤트를 찾을 수 없습니다.`);
       }
       return event;
     } catch (error: any) {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+      throw new InternalServerErrorException('[EVENT][SERVICE] An error occurred while creating the event', `${(error as any).message}`);
     }
   }
 
@@ -79,7 +75,7 @@ export class EventService {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while creating the event', { cause: error});
+      throw new InternalServerErrorException('[EVENT][SERVICE] An error occurred while creating the event', { cause: error});
     }
   }
 
@@ -96,7 +92,7 @@ export class EventService {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while finding events', { cause: error });
+      throw new InternalServerErrorException('[EVENT][SERVICE] An error occurred while finding events', { cause: error });
     }
   }
 
@@ -124,7 +120,7 @@ export class EventService {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while finding events', { cause: error });
+      throw new InternalServerErrorException('[EVENT][SERVICE] An error occurred while finding events', { cause: error });
     }
   }
 
@@ -140,7 +136,7 @@ export class EventService {
       return !!event; // 삭제 여부를 boolean으로 반환
       
     } catch (error: any) {
-      throw new InternalServerErrorException('An error occurred while deleting the event', { cause: error });
+      throw new InternalServerErrorException('[EVENT][SERVICE]An error occurred while deleting the event', { cause: error });
     }
   }
 }

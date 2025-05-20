@@ -34,9 +34,7 @@ export const RewardOptionSchema = SchemaFactory.createForClass(RewardOption);
 export class SlotRewardInfo {
   @Prop({ required: true, type: Number, min: 1, max: 7 })
   slot: number; // 게이지 칸 번호 (1일차 출석 = 슬롯 1, ..., 7일차 출석 = 슬롯 7)
-
-  // RewardOption 클래스를 타입으로 직접 사용하면
-  // Mongoose는 내부적으로 RewardOptionSchema를 참조합니다.
+  
   @Prop({ required: true, type: [RewardOptionSchema] })
   rewards: RewardOption[]; // 예: 슬롯 1에서는 [아이템A(확률0.8), 아이템B(확률0.2)] 중 하나를 얻음
 }

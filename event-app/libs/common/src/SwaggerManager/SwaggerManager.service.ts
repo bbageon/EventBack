@@ -13,7 +13,7 @@ import {
 import { UserSignInDto, AdminSignInDto } from '@app/common/dto';
 import { UserSignUpDto, AdminSignUpDto } from '@app/common/dto';
 import { UserDto } from '@app/common/dto';
-import { CreateEventDto, UpdateEventDto, EventResponseDto } from '@app/common/dto';
+import { CreateEventDto, UpdateEventDto } from '@app/common/dto';
 import {
 	RewardOptionDto,
 	DailyRewardInfoDto,
@@ -66,7 +66,6 @@ export class SwaggerManager {
 				UserDto,
 				CreateEventDto,
 				UpdateEventDto,
-				EventResponseDto,
 				RewardOptionDto,
 				DailyRewardInfoDto,
 				SlotRewardInfoDto,

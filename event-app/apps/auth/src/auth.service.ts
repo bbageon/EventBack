@@ -1,4 +1,3 @@
-// apps/auth/src/auth/auth.service.ts
 import {
   ConflictException, // 서비스에서 던질 표준 예외
   Injectable,
@@ -39,15 +38,12 @@ function mapUserDocumentToUserDto(user: UserDocument): UserDto {
 
 @Injectable()
 export class AuthService {
-  // private readonly logger = new Logger(AuthService.name); // Logger 제거
-
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) { }
 
-  // --- 인증 관련 메소드 ---
 
   /**
    * 로그인
@@ -63,7 +59,7 @@ export class AuthService {
       const user = await this.validateUser(username, password);
 
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('[AUTH][SERVICE] Invalid credentials');
       }
       const token = await this.createAccessToken(user);
       return {
@@ -73,7 +69,7 @@ export class AuthService {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+      throw new InternalServerErrorException('[AUTH][SERVICE] An error occurred while creating the event', `${(error as any).message}`);
     }
   }
 
@@ -84,7 +80,6 @@ export class AuthService {
    * @returns 
    */
   private async validateUser(username: string, pass: string): Promise<UserDocument | null> {
-    // this.logger.debug(`Validating user credentials for: "${username}"`); // 로그 제거
     try {
       const user = await this.userModel.findOne({ username }).select('+password').exec();
       if (!user || !(await bcrypt.compare(pass, user.password))) {
@@ -93,7 +88,7 @@ export class AuthService {
       return user;
 
     } catch (error: any) {
-      throw new InternalServerErrorException('Error during credential validation', { cause: error });
+      throw new InternalServerErrorException('[AUTH][SERVICE] Error during credential validation', { cause: error });
     }
   }
 
@@ -104,19 +99,17 @@ export class AuthService {
    * @throws InternalServerErrorException (토큰 생성 오류 시)
    */
   async createAccessToken(user: UserDocument): Promise<{ access_token: string }> {
-    // this.logger.debug(`Creating access token for user: "${user.username}"`); // 로그 제거
     const payload = { username: user.username, sub: user._id.toString(), role: user.role };
 
     try {
       const access_token = this.jwtService.sign(payload);
-      // this.logger.debug(`Access token created for user: "${user.username}"`); // 로그 제거
       return { access_token };
 
     } catch (error: any) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new InternalServerErrorException('An internal error occurred during sign-in', { cause: error });
+      throw new InternalServerErrorException('[AUTH][SERVICE] An internal error occurred during sign-in', { cause: error });
     }
   }
 
@@ -142,7 +135,7 @@ export class AuthService {
    */
   async signUp(signUpDto: UserSignUpDto): Promise<UserDocument> {
     const { _id, username, password, role } = signUpDto;
-    const hashedPassword = await this.hashPassword(password);
+    const hashedPassword = await this.hashPassword(password); 
 
     // 1. 새 사용자 문서 객체 생성
     const newUser = new this.userModel({
@@ -159,7 +152,7 @@ export class AuthService {
       console.error('Error Name:', error.name);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+      throw new InternalServerErrorException('[AUTH][SERVICE] An error occurred while creating the event', `${(error as any).message}`);
     }
   }
 
@@ -181,7 +174,7 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new InternalServerErrorException('An internal error occurred during sign-in', { cause: error });
+      throw new InternalServerErrorException('[AUTH][SERVICE]An internal error occurred during sign-in', { cause: error });
     }
   }
 }

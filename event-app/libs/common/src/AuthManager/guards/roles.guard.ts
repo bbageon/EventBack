@@ -2,7 +2,6 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 
-// TODO: @Roles 데코레이터 및 Role enum 임포트 필요 (실제 경로에 맞게 수정)
 import { ROLES_KEY } from '../roles/roles.decorator';
 import { Role } from '@app/common/enum';
 

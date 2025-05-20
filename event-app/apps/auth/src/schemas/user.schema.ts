@@ -1,10 +1,9 @@
-// apps/auth/src/schemas/user.schema.ts (수정)
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
-import { Role } from '@app/common'; // 임포트 필요
-import { Document, Types } from 'mongoose'; // Mongoose Document 임포트
+import { Role } from '@app/common'; 
+import { Document, Types } from 'mongoose'; 
 
-export type UserDocument = User & Document; // 이 타입 정의는 그대로 둡니다.
+export type UserDocument = User & Document;
 
 @Schema({
     timestamps: true,

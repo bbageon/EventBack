@@ -4,15 +4,15 @@ import {
 } from '@nestjs/common';
 
 // Service
-import { AuthService } from './auth.service'; // 합쳐진 AuthService 주입
+import { AuthService } from './auth.service'; 
 
-// Passport, Guard (마이크로서비스 가드 구현 필요)
+// Passport, Guard 
 import { AuthGuard } from '@nestjs/passport'; // Passport JWT Strategy 사용 시 필요
 
 // DTO 
-import { UserSignInDto } from '@app/common/dto'; // Path Alias 사용
-import { UserSignUpDto } from '@app/common/dto'; // Path Alias 사용
-import { SignInResult } from '@app/common/dto'; // Path Alias 사용
+import { UserSignInDto } from '@app/common/dto'; 
+import { UserSignUpDto } from '@app/common/dto'; 
+import { SignInResult } from '@app/common/dto'; 
 
 // MicroService
 import {
@@ -26,7 +26,7 @@ import {
 @Controller()
 export class AuthController {
   getHello(): any {
-    throw new Error('Method not implemented.');
+    throw new Error('[AUTH][CONTROLLER] Method not implemented.');
   }
   constructor(
     private authService: AuthService,
@@ -43,7 +43,7 @@ export class AuthController {
       const userResult = await this.authService.userSignIn(payload);
       return userResult;
     } catch (error: any) {
-      throw new RpcException(error);
+      throw new RpcException(error || '[AUTH][CONTROLLER]');
     }
   }
 
@@ -60,12 +60,12 @@ export class AuthController {
     try {
       const user = await this.authService.findById(userPayload.sub);
       if (!user) {
-        throw new RpcException('User not found');
+        throw new RpcException('[AUTH][CONTROLLER] User not found');
       }
       return user; // UserDto 반환
 
     } catch (error: any) {
-      throw new RpcException(error);
+      throw new RpcException(error || '[AUTH][CONTROLLER]');
     }
   }
 
@@ -79,7 +79,7 @@ export class AuthController {
       const result = await this.authService.signUp(payload);
       return result;
     } catch (error: any) {
-      throw new RpcException(error);
+      throw new RpcException(error || '[AUTH][CONTROLLER]');
     }
   }
 }

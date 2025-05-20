@@ -54,12 +54,9 @@ const envFilePath = [
     JwtModule.registerAsync({
       imports: [ConfigModule], // ConfigService 주입을 위해 필요
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // JWT 서명 검증 비밀 키
-        // secret : "event_local"
-        // verifyOptions 등 다른 JWT 관련 옵션을 설정할 수 있습니다.
-        // signOptions는 게이트웨이가 토큰을 직접 발행하지 않으면 필요 없습니다.
+        secret: configService.get<string>('JWT_SECRET'),
       }),
-      inject: [ConfigService], // useFactory 함수에 ConfigService 주입
+      inject: [ConfigService], 
     }),
     
     /** Gateway Modules */

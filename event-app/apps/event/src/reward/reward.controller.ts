@@ -27,7 +27,7 @@ export class RewardController {
     const userId = payload.userId;
     const eventId = payload.eventId;
     if (!userId || !eventId) {
-      throw new RpcException('Invalid payload: userId and eventId are required');
+      throw new RpcException('[EVENT-REWARD][CONTROLLER]  Invalid payload: userId and eventId are required');
     }
     try {
       const result = await this.rewardService.DailyCheckIn(userId, eventId);
@@ -45,12 +45,11 @@ export class RewardController {
    * @returns 지급된 게이지바 보상 정보
    */
   @MessagePattern('weekly_check') // <-- 메시지 패턴 유지
-  // async handleClaimGaugeRewardMessage(@Payload() payload: ClaimRewardPayloadDto, @Ctx() context: any): Promise<ClaimRewardResultDto> { // DTO 사용 시
-  async handleClaimGaugeRewardMessage(@Payload() payload: any, @Ctx() context: any): Promise<any> { // DTO 사용 전 임시 타입 유지
+  async handleClaimGaugeRewardMessage(@Payload() payload: any): Promise<any> { // DTO 사용 전 임시 타입 유지
     const userId = payload.userId;
     const eventId = payload.eventId;
     if (!userId || !eventId) {
-      throw new RpcException('Invalid payload: userId and eventId are required');
+      throw new RpcException(' [EVENT-REWARD][CONTROLLER] Invalid payload: userId and eventId are required');
     }
     try {
       const result = await this.rewardService.WeeklyCheckIn(userId, eventId);
@@ -68,12 +67,11 @@ export class RewardController {
    * @returns 사용자 진행 상태 정보
    */
   @MessagePattern('get_event_progress')
-  // async handleGetUserEventProgressMessage(@Payload() payload: GetUserEventProgressPayloadDto, @Ctx() context: any): Promise<UserCheckinProgressDto | null> { // DTO 사용 시
-  async handleGetUserEventProgressMessage(@Payload() payload: any, @Ctx() context: any): Promise<any | null> { // DTO 사용 전 임시 타입 유지
+  async handleGetUserEventProgressMessage(@Payload() payload: any): Promise<any | null> { // DTO 사용 전 임시 타입 유지
     const userId = payload.userId;
     const eventId = payload.eventId;
     if (!userId || !eventId) {
-      throw new RpcException('Invalid payload: userId and eventId are required');
+      throw new RpcException('[EVENT-REWARD][CONTROLLER] Invalid payload: userId and eventId are required');
     }
     try {
       const result = await this.rewardService.getUserEventProgress(userId, eventId);
@@ -92,13 +90,13 @@ export class RewardController {
     @Payload() payload: { eventId: string, rewards: DailyRewardInfoDto[] }): Promise<any> { // 성공 시 보통 업데이트된 Event 또는 단순 성공 메시지/객체 반환
     const { eventId, rewards } = payload;
     if (!eventId || !rewards) {
-      throw new RpcException('Invalid payload: eventId and rewards array are required for set_daily_rewards.');
+      throw new RpcException('[EVENT-REWARD][CONTROLLER] Invalid payload: eventId and rewards array are required for set_daily_rewards.');
     }
     try {
       const result = await this.rewardService.setDailyRewards(eventId, rewards);
-      return { status: 'success', message: '일일 보상 정보가 성공적으로 설정되었습니다.', data: result };
+      return { status: 'success', message: '[EVENT-REWARD][CONTROLLER] 일일 보상 정보가 성공적으로 설정', data: result };
     } catch (error: any) {
-      throw new RpcException(error.message || '일일 보상 정보 설정 중 오류가 발생했습니다.');
+      throw new RpcException(error.message || '[EVENT-REWARD][CONTROLLER] 일일 보상 정보 설정 중 오류가 발생');
     }
   }
 
@@ -110,17 +108,22 @@ export class RewardController {
   async handleSetSlotRewards(@Payload() payload: {eventId : string, rewards : SlotRewardInfoDto[]}): Promise<any> {
     const { eventId, rewards } = payload;
     if (!eventId || !rewards) {
-      throw new RpcException('Invalid payload: eventId and rewards array are required for set_slot_rewards.');
+      throw new RpcException('[EVENT-REWARD][CONTROLLER]Invalid payload: eventId and rewards array are required for set_slot_rewards.');
     }
     try {
       const result = await this.rewardService.setSlotRewards(eventId, rewards);
-      return { status: 'success', message: '슬롯 보상 정보가 성공적으로 설정되었습니다.', data: result };
+      return { status: 'success', message: '[EVENT-REWARD][CONTROLLER] 슬롯 보상 정보가 성공적으로 설정', data: result };
     } catch (error: any) {
-      throw new RpcException(error.message || '슬롯 보상 정보 설정 중 오류가 발생했습니다.');
+      throw new RpcException(error.message || '[EVENT-REWARD][CONTROLLER] 슬롯 보상 정보 설정 중 오류가 발생');
     }
   }
-
-  @MessagePattern('get_reward_claim_logs') // 기존 패턴 유지
+  
+  /**
+   * 보상 이력(로그) 조회
+   * @param payload 
+   * @returns 
+   */
+  @MessagePattern('get_reward_claim_logs') 
   async handleGetRewardClaimLogs(@Payload() payload: any,): Promise<any> {
     const filters = payload.filters || {};
     if (filters.dateFrom) filters.dateFrom = new Date(filters.dateFrom);
@@ -129,7 +132,7 @@ export class RewardController {
     try {
       return await this.rewardService.getRewardClaimLogs(filters, payload.pagination);
     } catch (error: any) {
-      throw new RpcException(error.message || '슬롯 보상 정보 설정 중 오류가 발생했습니다.');
+      throw new RpcException(error.message || '[EVENT][CONTROLLER] 슬롯 보상 정보 설정 중 오류가 발생');
     }
   }
 }

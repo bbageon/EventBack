@@ -3,11 +3,9 @@ import {
      InternalServerErrorException,
      NotFoundException,
      ConflictException,
-     Inject,
-     BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, Schema as MongooseSchema } from 'mongoose';
+import { Model, Schema as MongooseSchema } from 'mongoose';
 
 // Schema
 import {
@@ -178,7 +176,7 @@ export class RewardService {
                if (userProgress.last_Date) {
                     const lastCheckinDay = new Date(userProgress.last_Date.getFullYear(), userProgress.last_Date.getMonth(), userProgress.last_Date.getDate());
                     if (lastCheckinDay.getTime() === today.getTime()) {
-                         throw new ConflictException('You have already checked in today');
+                         throw new ConflictException('[EVENT-REWARD][SERVICE] 일일 보상 중복 수령');
                     }
                }
 
@@ -297,12 +295,12 @@ export class RewardService {
                const progressWeekStart = new Date(userProgress.weekStartDate.getFullYear(), userProgress.weekStartDate.getMonth(), userProgress.weekStartDate.getDate());
 
                if (progressWeekStart < currentWeekStart) {
-                    throw new ConflictException('Progress information is for a previous week. Please perform a daily check-in first to update weekly data.');
+                    throw new ConflictException('[EVENT-REWARD][SERVICE] Progress information is for a previous week. Please perform a daily check-in first to update weekly data.');
                }
 
                // 6. 주간 보상 획득 여부 확인
                if (userProgress.WeeklyRewardIs) { // UserSummerEventProgress 스키마에 WeeklyRewardIs: boolean 필드 추가 필요
-                    const detail = '주간 게이지 보상을 이미 이번 주에 수령했습니다.';
+                    const detail = '[EVENT-REWARD][SERVICE] 주간 보상 중복 수령';
                     await this.logRewardClaim(baseLogInfo.userId, baseLogInfo.eventId, baseLogInfo.placeholderRewardId, baseLogInfo.placeholderQuantity, baseLogInfo.RewardType, baseLogInfo.RewardRequireIs);
                     throw new ConflictException(detail);
                }
@@ -324,17 +322,17 @@ export class RewardService {
                }
                const slotRewardDef = event.slotRewards.find(sr => sr.slot === currentLevel);
                if (!slotRewardDef || !slotRewardDef.rewards || slotRewardDef.rewards.length === 0) {
-                    throw new InternalServerErrorException(`No probabilistic rewards defined for gauge level ${currentLevel}.`);
+                    throw new InternalServerErrorException(`[EVENT-REWARD][SERVICE] No probabilistic rewards defined for gauge level ${currentLevel}.`);
                }
 
                // 8. 보상 목록에서 확률적으로 보상 선택
                const selectedRewardOption = this.selectProbabilisticReward(slotRewardDef.rewards);
                if (!selectedRewardOption) {
-                    throw new InternalServerErrorException(`Failed to select a probabilistic reward for gauge level ${currentLevel}.`);
+                    throw new InternalServerErrorException(`[EVENT-REWARD][SERVICE] Failed to select a probabilistic reward for gauge level ${currentLevel}.`);
                }
 
                // 9. 보상 지급 로직 수행 (이 부분은 실제 게임 아이템/재화 지급 시스템과 연동 필요)
-               // TODO: 실제 보상 지급 Microservice 호출 또는 로직 구현 (예: await this.issueRewardToUser(userId, selectedRewardOption.rewardId, selectedRewardOption.quantity);)
+               // ** 예정 사항 ->  실제 보상 지급 Microservice 호출 또는 로직 구현 
                const gaugeRewardGiven = {
                     rewardId: selectedRewardOption.rewardId as string, // MapleRewardId enum 값을 문자열로 반환
                     quantity: selectedRewardOption.quantity
@@ -364,7 +362,7 @@ export class RewardService {
                console.error('Error Name:', error.name);
                console.error('Error Message:', error.message);
                console.error('Error Stack:', error.stack);
-               throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+               throw new InternalServerErrorException('[EVENT-REWARD][SERVICE] An error occurred while creating the event', `${(error as any).message}`);
           }
      }
 
@@ -393,18 +391,18 @@ export class RewardService {
                console.error('Error Name:', error.name);
                console.error('Error Message:', error.message);
                console.error('Error Stack:', error.stack);
-               throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+               throw new InternalServerErrorException('[EVENT-REWARD][SERVICE] An error occurred while creating the event', `${(error as any).message}`);
           }
      }
      /**
- * 보상 지급/요청 이력을 조회합니다. (필터 단순화 버전)
+ * 보상 지급/요청 이력을 조회 (필터 단순화 버전)
  * @param filters 필터 조건 (userId - 선택적, dateFrom, dateTo - 선택적)
  * @param pagination 페이지네이션 옵션
  * @returns 보상 이력 목록과 관련 정보
  */
      async getRewardClaimLogs(
           filters: {
-               userId?: number;    // userId가 제공되면 해당 사용자 로그만, 없으면 전체 로그
+               userId?: number;   
                dateFrom?: Date;
                dateTo?: Date;
           },
@@ -444,7 +442,6 @@ export class RewardService {
                          .skip(skip)
                          .limit(perPage)
                          .populate('eventId', 'name') // 이벤트 이름 정도는 같이 보여주는 것이 좋을 수 있음
-                         // .populate('userId', 'username') // 사용자 정보도 필요하다면 populate
                          .exec(),
                     this.rewardClaimLogModel.countDocuments(query).exec(),
                ]);
@@ -455,7 +452,7 @@ export class RewardService {
                console.error('Error Name:', error.name);
                console.error('Error Message:', error.message);
                console.error('Error Stack:', error.stack);
-               throw new InternalServerErrorException('An error occurred while creating the event', `${(error as any).message}`);
+               throw new InternalServerErrorException('[EVENT-REWARD][SERVICE]An error occurred while creating the event', `${(error as any).message}`);
           }
      }
 
@@ -487,15 +484,13 @@ export class RewardService {
           }
      }
      /**
-      * 주어진 날짜가 포함된 주의 목요일 시작 날짜/시간을 계산합니다.
+      * 주어진 날짜가 포함된 주의 목요일 시작 날짜/시간을 계산
       * 목요일 = 0일차, 금요일 = 1일차
       */
      private getStartOfWeekByThursday(date: Date): Date {
           const dayOfWeek = date.getDay();
           const thursdayDay = 4;
-
           const diff = dayOfWeek >= thursdayDay ? dayOfWeek - thursdayDay : dayOfWeek + (7 - thursdayDay);
-
           const thursday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - diff);
           thursday.setHours(0, 0, 0, 0);
           return thursday;
