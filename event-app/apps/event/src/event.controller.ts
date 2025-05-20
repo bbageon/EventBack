@@ -27,7 +27,6 @@ export class EventController {
   async handleCreateEventMessage(@Payload() payload: { createEventDto: CreateEventDto, createdByUserId: string }, @Ctx() context: any): Promise<EventDocument> { // DTO 사용 시
     const createEventDto = payload.createEventDto;
     const createdByUserId = payload.createdByUserId;
-    console.log(createEventDto, createdByUserId)
     if (!createEventDto || !createdByUserId) {
       throw new RpcException('[EVENT][CONTROLLER Invalid payload: createEventDto and createdByUserId are required');
     }

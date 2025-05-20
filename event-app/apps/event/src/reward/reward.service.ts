@@ -67,9 +67,7 @@ export class RewardService {
       * @returns 
       */
      async setSlotRewards(eventId: string, slotRewardsData: SlotRewardInfoDto[]): Promise<EventDocument> {
-          console.log("123")
           const event = await this.eventModel.findOne({ _id: eventId }).exec();
-          console.log(event)
           if (!event) {
                throw new NotFoundException(`ID '${eventId}'에 해당하는 이벤트를 찾을 수 없습니다.`);
           }

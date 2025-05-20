@@ -42,13 +42,46 @@ export class AdminSignInDto {
   @IsNotEmpty()
   @MinLength(8)
   password: string;
+}
 
-  // @ApiProperty({
-  //   example : Role.ADMIN,
-  //   description : 'User-ROLE',
-  //   required : true,
-  // })
-  // @IsString()
-  // @IsNotEmpty()
-  // role: Role.ADMIN;
+export class OperatorSignInDto {
+  @ApiProperty({
+    example : 'operator1234@test.com',
+    description : 'User-ID',
+    required : true
+  })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({
+    example : 'operator1234',
+    description : 'User-PASSWORD',
+    required : true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
+}
+
+export class AuditorSignInDto {
+  @ApiProperty({
+    example : 'auditor1234@test.com',
+    description : 'User-ID',
+    required : true
+  })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({
+    example : 'auditor1234',
+    description : 'User-PASSWORD',
+    required : true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 }

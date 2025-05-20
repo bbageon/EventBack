@@ -23,7 +23,16 @@ import { Role } from '@app/common';
 
 // Swagger, Dto
 import { ApiOperation, ApiTags, ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { UserSignInDto, UserSignUpDto, AdminSignInDto, AdminSignUpDto } from '@app/common/dto';
+import {
+    UserSignInDto,
+    UserSignUpDto,
+    AdminSignInDto,
+    AdminSignUpDto,
+    OperatorSignInDto,
+    OperatorSignUpDto,
+    AuditorSignInDto,
+    AuditorSignUpDto
+} from '@app/common/dto';
 
 
 
@@ -43,8 +52,6 @@ export class AuthGatewayController {
     @ApiBody({ type: UserSignUpDto })
     @ApiResponse(createErrorResponse('Error message'))
     @Post('/user_signup')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.USER, Role.ADMIN)
     @UsePipes(ValidationPipe)
     async signUp(@Body() signUpDto: UserSignUpDto, @Res() res: Response) {
         try {
@@ -72,12 +79,65 @@ export class AuthGatewayController {
     @ApiBody({ type: AdminSignUpDto })
     @ApiResponse(createErrorResponse('Error message'))
     @Post('/admin_signup')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.ADMIN)
     @UsePipes(ValidationPipe)
     async AdminSignUp(@Body() signUpDto: AdminSignUpDto, @Res() res: Response) {
         try {
             const result = await this.authGatewayService.signUpUser(signUpDto);
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.OK,
+                message: 'success',
+                result,
+            });
+        } catch (e) {
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: '[AUTH][CONTROLLER] An error occurred while finding events',
+                data: (e as any).message,
+            });
+        }
+    }
+
+    /**
+ * 오퍼레이터 회원가입
+ * @param OperatorSignUpDto 
+ * @returns 
+ */
+    @ApiOperation({ summary: '오퍼레이더 회원가입' })
+    @ApiBody({ type: OperatorSignUpDto })
+    @ApiResponse(createErrorResponse('Error message'))
+    @Post('/operator_signup')
+    @UsePipes(ValidationPipe)
+    async OperatorSignUp(@Body() OperatorSignUpDto: OperatorSignUpDto, @Res() res: Response) {
+        try {
+            const result = await this.authGatewayService.signUpUser(OperatorSignUpDto);
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.OK,
+                message: 'success',
+                result,
+            });
+        } catch (e) {
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: '[AUTH][CONTROLLER] An error occurred while finding events',
+                data: (e as any).message,
+            });
+        }
+    }
+
+
+    /**
+* 에디터 회원가입
+* @param signUpDto 
+* @returns 
+*/
+    @ApiOperation({ summary: '에디터 회원가입' })
+    @ApiBody({ type: AuditorSignUpDto })
+    @ApiResponse(createErrorResponse('Error message'))
+    @Post('/auditor_signup')
+    @UsePipes(ValidationPipe)
+    async AuditorSignUp(@Body() AuditorSignUpDto: AuditorSignUpDto, @Res() res: Response) {
+        try {
+            const result = await this.authGatewayService.signUpUser(AuditorSignUpDto);
             return res.status(HttpStatus.OK).json({
                 status: HttpStatus.OK,
                 message: 'success',
@@ -101,8 +161,6 @@ export class AuthGatewayController {
     @ApiBody({ type: UserSignInDto })
     @Post('/user_signin')
     @ApiResponse(createErrorResponse('Error message'))
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.USER, Role.ADMIN)
     async UserSignIn(@Body() UserSignInDto: UserSignInDto, @Res() res: Response) {
         try {
             const result = await this.authGatewayService.signIn(UserSignInDto);
@@ -123,14 +181,12 @@ export class AuthGatewayController {
 
     /**
      * 관리자 로그인
-     * @param signInDto
+     * @param AdminSignInDto
      */
     @ApiOperation({ summary: '관리자 로그인' })
     @ApiBody({ type: AdminSignInDto })
     @Post('/admin_signin')
     @ApiResponse(createErrorResponse('Error message'))
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.ADMIN)
     async AdminSignIn(@Body() AdminSignInDto: AdminSignInDto, @Res() res: Response) {
         try {
             const result = await this.authGatewayService.signIn(AdminSignInDto);
@@ -147,6 +203,56 @@ export class AuthGatewayController {
             });
         }
     }
+
+    /**
+     * 오퍼레이터 로그인
+     * @param OperatorSignInDto
+     */
+    @ApiOperation({ summary: '오퍼레이터 로그인' })
+    @ApiBody({ type: OperatorSignInDto })
+    @Post('/operator_signin')
+    @ApiResponse(createErrorResponse('Error message'))
+    async OperatorSignIn(@Body() OperatorSignInDto: OperatorSignInDto, @Res() res: Response) {
+        try {
+            const result = await this.authGatewayService.signIn(OperatorSignInDto);
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.OK,
+                message: 'success',
+                result,
+            });
+        } catch (e) {
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: '[AUTH][CONTROLLER] An error occurred while finding events',
+                data: (e as any).message,
+            });
+        }
+    }
+    /**
+     * 에디터 로그인
+     * @param AuditorSignInDto
+     */
+    @ApiOperation({ summary: '에디터 로그인' })
+    @ApiBody({ type: AuditorSignInDto })
+    @Post('/auditor_signin')
+    @ApiResponse(createErrorResponse('Error message'))
+    async AuditorSignIn(@Body() AuditorSignInDto: AuditorSignInDto, @Res() res: Response) {
+        try {
+            const result = await this.authGatewayService.signIn(AuditorSignInDto);
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.OK,
+                message: 'success',
+                result,
+            });
+        } catch (e) {
+            return res.status(HttpStatus.OK).json({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: '[AUTH][CONTROLLER] An error occurred while finding events',
+                data: (e as any).message,
+            });
+        }
+    }
+
 
     /**
      * 토큰 유효성 검사
