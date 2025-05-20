@@ -13,5 +13,17 @@ export * from './SwaggerManager/SwaggerManager.service';
 
 /** DB */
 export * from './DB/database.module';
-export * from './DB/abstract.repository';
-export * from './DB/abstract.schema';
+
+/** Dto */
+export * from './dto';
+
+/** AUTH (JWT, ROLE) */
+export * from './AuthManager/roles';
+export * from './AuthManager/guards/jwt-auth.guard';
+export * from './AuthManager/guards/roles.guard';
+export * from './AuthManager/strategy/jwt.strategy';
+
+/** enum */
+export * from './enum';
+
+/** example */

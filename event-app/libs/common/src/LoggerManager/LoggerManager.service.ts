@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as winston from 'winston';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import schedule from 'node-schedule';
 import { ConfigService } from '@nestjs/config';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 
 interface LogData {
@@ -48,7 +51,7 @@ export class LoggerManager {
      * @returns
      */
     getToday() {
-        const d = dayjs().tz('Asia/Seoul');
+        const d = dayjs.default().tz('Asia/Seoul');
         const dd = {
             year: `${d.year()}`,
             month: d.month() + 1 < 10 ? `0${d.month() + 1}` : `${d.month() + 1}`,
@@ -111,7 +114,7 @@ export class LoggerManager {
         const logData: LogData = {
             label: this.projectName,
             level: info.level,
-            timestamp: dayjs().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss'),
+            timestamp: dayjs.default().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss'),
             message,
             context: (info as any).context || 'HTTP', // 여기도 any 캐스팅
             logVersion: 'V1',

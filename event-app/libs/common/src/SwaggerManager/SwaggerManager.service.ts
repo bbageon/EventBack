@@ -10,8 +10,22 @@ import {
 } from '@nestjs/swagger';
 
 // Dtos
-import { SignInDto } from '@app/auth/dto';
-import { SignUpDto } from '@app/auth/user/dto';
+import { UserSignInDto, AdminSignInDto } from '@app/common/dto';
+import { UserSignUpDto, AdminSignUpDto } from '@app/common/dto';
+import { UserDto } from '@app/common/dto';
+import { CreateEventDto, UpdateEventDto, EventResponseDto } from '@app/common/dto';
+import {
+	RewardOptionDto,
+	DailyRewardInfoDto,
+	SlotRewardInfoDto,
+	DailyCheckinRequestDto,
+	DailyCheckinResponseDto,
+	WeeklyCheckInRequestDto,
+	WeeklyCheckInResponseDto,
+	GetUserEventProgressRequestDto,
+	UserEventProgressResponseDto
+} from '@app/common/dto';
+
 
 @Injectable()
 export class SwaggerManager {
@@ -45,8 +59,23 @@ export class SwaggerManager {
 
 		const document = SwaggerModule.createDocument(app, options, {
 			extraModels: [
-				SignInDto,
-				SignUpDto,
+				UserSignInDto,
+				UserSignUpDto,
+				AdminSignInDto,
+				AdminSignUpDto,
+				UserDto,
+				CreateEventDto,
+				UpdateEventDto,
+				EventResponseDto,
+				RewardOptionDto,
+				DailyRewardInfoDto,
+				SlotRewardInfoDto,
+				DailyCheckinRequestDto,
+				DailyCheckinResponseDto,
+				WeeklyCheckInRequestDto,
+				WeeklyCheckInResponseDto,
+				GetUserEventProgressRequestDto,
+				UserEventProgressResponseDto
 			], // 여기에 DTO를 추가
 		});
 		SwaggerModule.setup('api-docs', app, document, swaggerCustomOptions);

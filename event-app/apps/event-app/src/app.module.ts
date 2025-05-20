@@ -1,15 +1,25 @@
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config'; // ConfigModule 임포트 (필요시)
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { DbModule } from '@app/common';
 
 /** libs */
-import { LoggerManagerModule } from '@app/common'; 
-import { LoggerMiddleware } from '@app/common';
-import { SwaggerManagerModule } from '@app/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import {
+  LoggerManagerModule,
+  JwtStrategy,
+  RolesGuard,
+  LoggerMiddleware,
+  SwaggerManagerModule
+} from '@app/common';
+
+// SubModule
+import { AuthGatewayModule } from './auth-gateway/auth-gateway.module';
+import { EventGatewayModule } from './event-gateway/event-gateway.module';
+import { EventRewardGatewayModule } from './event-reward-gateway/event-reward-gateway.module';
+
+// Auth
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+
 
 const env = process.env.NODE_ENV || 'development';
 const envFilePath = [
@@ -17,43 +27,79 @@ const envFilePath = [
   '.env.development',
   '.env',
 ];
-
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: envFilePath,
       validationSchema: Joi.object({
+        /** DB */
         MONGODB_URI: Joi.string().required(),
+        /** SubModule */
+        AUTH_SERVICE_PORT: Joi.number().required(),
+        EVENT_SERVICE_PORT: Joi.number().required(),
+        /** JWT */
+        JWT_SECRET: Joi.string().required(),
       }),
+      // ignoreEnvFile: true,
     }),
-    /** DB */
-    DbModule,
     /** Libs */
     LoggerManagerModule,
     SwaggerManagerModule,
-    /** Microservice Client 추가 */
-    ClientsModule.registerAsync([
-      {
-        name: 'AUTH_SERVICE', // 더 명확한 이름으로 변경 권장 (기존 USER_SERVICE도 유효)
-        imports: [ConfigModule], // ConfigModule 임포트
-        useFactory: (configService: ConfigService) => ({ // useFactory 사용
-          transport: Transport.TCP,
-          options: {
-            host: 'auth', // Docker Compose 서비스 이름
-            port: configService.get<number>('AUTH_SERVICE_PORT'), // 환경 변수에서 포트 읽기
-          },
-        }),
-        inject: [ConfigService], // useFactory에 ConfigService 주입 명시
-      },
-    ]),
+    /** Passport */
+    PassportModule.register({
+      defaultStrategy: 'jwt',
+    }),
+    /** JWT */
+    JwtModule.registerAsync({
+      imports: [ConfigModule], // ConfigService 주입을 위해 필요
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'), // JWT 서명 검증 비밀 키
+        // secret : "event_local"
+        // verifyOptions 등 다른 JWT 관련 옵션을 설정할 수 있습니다.
+        // signOptions는 게이트웨이가 토큰을 직접 발행하지 않으면 필요 없습니다.
+      }),
+      inject: [ConfigService], // useFactory 함수에 ConfigService 주입
+    }),
+    
+    /** Gateway Modules */
+    AuthGatewayModule,
+    EventGatewayModule,
+    EventRewardGatewayModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
-
+  controllers: [
+  ],
+  providers: [
+    JwtStrategy, 
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard, 
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard, 
+    // },
+  ],
 })
 export class AppModule {
+  private readonly logger = new Logger(AppModule.name);
+
+  constructor(private configService: ConfigService) {
+    //  // 앱 시작 시 설정 값 확인 (선택 사항)
+    //  this.logger.log(`Environment: ${env}`);
+    //  this.logger.log(`Loaded ENV files: ${envFilePath.join(', ')}`);
+    //  // 필요한 환경 변수 값 로깅
+    //  this.logger.log(`AUTH_SERVICE_PORT: ${this.configService.get<number>('AUTH_SERVICE_PORT')}`);
+    //  this.logger.log(`EVENT_SERVICE_PORT: ${this.configService.get<number>('EVENT_SERVICE_PORT')}`); // TODO
+    //  this.logger.log(`JWT_SECRET: ${this.configService.get<string>('JWT_SECRET') ? 'Loaded' : 'NOT Loaded'}`);
+    //  const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    //  if (jwtSecret) {
+    
+    //   this.logger.log(`>>> Gateway JWT_SECRET Value: ${jwtSecret}`);
+    // }
+  }
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
+
 }
