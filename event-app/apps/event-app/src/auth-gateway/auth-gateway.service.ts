@@ -6,7 +6,7 @@ import { firstValueFrom, timeout } from 'rxjs';
 // Dto
 import { UserSignInDto, UserSignUpDto } from '@app/common';
 import { UserDto } from '@app/common';
-import { SignInResult } from '@app/common';
+import { SignInResult } from '@app/common/dto/Signin-result';
 
 @Injectable()
 export class AuthGatewayService {

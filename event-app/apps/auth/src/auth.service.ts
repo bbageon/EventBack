@@ -19,7 +19,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { UserSignInDto } from '@app/common/dto'; // Path Alias 사용
 import { UserSignUpDto } from '@app/common/dto'; // Path Alias 사용
 import { UserDto } from '@app/common/dto'; // Path Alias 사용
-import { SignInResult } from '@app/common/dto';
+import { SignInResult } from '@app/common/dto/Signin-result';
 
 function mapUserDocumentToUserDto(user: UserDocument): UserDto {
   if (!user) return null;
