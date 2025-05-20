@@ -87,11 +87,10 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 1234 # !!! MONGODB_URI의 비밀번호와 일치해야 함 !!!
-      MONGO_INITDB_DATABASE: admin
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
 
 # Docker Volume 정의 (MongoDB 데이터 저장용)
 volumes:

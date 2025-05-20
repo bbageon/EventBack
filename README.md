@@ -3,6 +3,16 @@
 
 Local Environment 에서 진행하였으며, 코드 실행 시, 참고를 위한 env, dockerfile, docker-compose.yml 모두 업로드하였음
 -> Production 단계에서는 삭제
+**실행방법**
+docker compose up --build
+이때, .env.development 파일 mongoDB URL 및 INITDB 값 확인
+
+**Swagger 접속**
+
+http://localhost:3000/api-docs#/
+Auth 에서 1. 회원가입 2. 로그인 3. access_token 값 우측 상단에 Authorize 에 삽입
+-> ROLE 별 API 테스트 가능
+
 ## 1. 프로젝트 개요
 ![image](https://github.com/user-attachments/assets/7f3315c3-5c7d-4983-bfd0-2fa81e91e973)
 
@@ -148,6 +158,7 @@ Local Environment 에서 진행하였으며, 코드 실행 시, 참고를 위한
 docker compose build
 ### Execute
 docker compose up --build
+docker compose --env-file .env.development up --build // if use .env.development
 ## Install
 ### Docker
 https://docs.docker.com/desktop/setup/install/mac-install/
