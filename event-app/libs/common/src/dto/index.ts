@@ -1,5 +1,5 @@
 export * from './signin.dto';
-export * from './signin-result';
+export * from './Signin-result';
 export * from './signup.dto';
 export * from './user.dto';
 export * from './event.dto';
