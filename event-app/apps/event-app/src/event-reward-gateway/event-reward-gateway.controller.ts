@@ -284,7 +284,7 @@ export class EventRewardGatewayController {
   @ApiOperation({ summary: '전체 사용자 보상 수령 이력 조회' })
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN, Role.AUDITOR)
+  @Roles(Role.ADMIN, Role.AUDITOR, Role.OPERATOR)
   async getAllRewardClaimLogs(
     @Query(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: false })) 
     queryDto: getLogDto, // 단순화된 DTO 사용
