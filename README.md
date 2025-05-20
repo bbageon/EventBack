@@ -1,5 +1,6 @@
 # 여름맞이 물총 이벤트
 2025 N_M_Assignment 01
+Local 에서 진행, env, dockerfile, docker-compose.yml 모두 업로드
 ## 1. 프로젝트 개요
 ![image](https://github.com/user-attachments/assets/7f3315c3-5c7d-4983-bfd0-2fa81e91e973)
 
@@ -131,9 +132,9 @@
 
 ## 8. 향후 개선 방향
 * **일일 조건 검증 방식 (`checkEventConditionMet`):**
-    * `RewardService` 내 `checkEventConditionMet` 메소드는 특정 사용자가 주어진 조건을 만족했는지 검사합니다.
-    * **현재 상태 및 향후 확장 방향:** 이 조건 로직 검증은 현재 실제 검증 로직 없이 존재합니다. -> 모든 조건에 대하여 `true` 반환
-    * 실제 구현 시, 사용자 활동 로그를 추적/제공하는 별도의 서비스와 연동하여 각 조건 유형에 맞는 검증 로직을 구체화해야 합니다.
+    * `RewardService` 내 `checkEventConditionMet` 메소드는 특정 사용자가 주어진 조건을 만족했는지 검사
+    * **현재 상태 및 향후 확장 방향:** 이 조건 로직 검증은 현재 실제 검증 로직 없이 존재 -> 모든 조건에 대하여 `true` 반환
+    * 실제 구현 시, 사용자 활동 로그를 추적/제공하는 별도의 서비스와 연동하여 각 조건 유형에 맞는 검증 로직을 구체화 필요
 
 ---
 
